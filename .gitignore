@@ -1,0 +1,6 @@
+.vscode/
+
+__pycache__/
+
+nq-test.tfrecords
+simplified-nq-test.jsonl

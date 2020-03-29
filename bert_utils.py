@@ -108,23 +108,24 @@ def get_first_annotation(e):
   if "annotations" not in e:
       return None, -1, (-1, -1)
 
+  # sort annotated long answers but in reality there's only one
   positive_annotations = sorted(
       [a for a in e["annotations"] if has_long_answer(a)],
       key=lambda a: a["long_answer"]["candidate_index"])
 
   for a in positive_annotations:
-    if a["short_answers"]:
+    if a["short_answers"]: # short exists
       idx = a["long_answer"]["candidate_index"]
-      start_token = a["short_answers"][0]["start_token"]
-      end_token = a["short_answers"][-1]["end_token"]
+      start_token = a["short_answers"][0]["start_token"] # start of first
+      end_token = a["short_answers"][-1]["end_token"] # end of last
       return a, idx, (token_to_char_offset(e, idx, start_token),
                       token_to_char_offset(e, idx, end_token) - 1)
 
   for a in positive_annotations:
     idx = a["long_answer"]["candidate_index"]
-    return a, idx, (-1, -1)
+    return a, idx, (-1, -1) # first long, no short
 
-  return None, -1, (-1, -1)
+  return None, -1, (-1, -1) # neither long or short exists
 
 
 def get_text_span(example, span):
@@ -286,7 +287,7 @@ def create_example_from_jsonl(line):
     single_context.append("[ContextId=%d] %s" %
                           (context["id"], context["type"]))
     offset += len(single_context[-1]) + 1
-    if context["id"] == annotated_idx:
+    if context["id"] == annotated_idx: # will be entered for test data: no annotations
       answer["span_start"] += offset
       answer["span_end"] += offset
 
@@ -355,7 +356,7 @@ def read_nq_entry(entry, is_training):
   doc_tokens = []
   char_to_word_offset = []
   prev_is_whitespace = True
-  for c in contexts:
+  for c in contexts: # contexts is a str
     if is_whitespace(c):
       prev_is_whitespace = True
     else:
